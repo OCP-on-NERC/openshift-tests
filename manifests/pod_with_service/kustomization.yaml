@@ -5,4 +5,3 @@ commonLabels:
 resources:
 - pod.yaml
 - service.yaml
-- route.yaml

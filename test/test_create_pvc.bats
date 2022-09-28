@@ -14,5 +14,18 @@ teardown() {
 
 @test "can create pvc" {
 	${KUBECTL} -n "$TARGET_NAMESPACE" apply -f manifests/pvc.yaml
-	wait_for_phase Bound pvc/test-volume
+	wait_for_phase Pending pvc/test-volume
+
+	storageclass=$(
+		${KUBECTL} -n "$TARGET_NAMESPACE" get pvc test-volume \
+			-o jsonpath='{.spec.storageClassName}'
+	)
+	bindmode=$(
+		${KUBECTL} get storageclass "$storageclass" \
+			-o jsonpath='{.volumeBindingMode}'
+	)
+
+	if [ "$bindmode" != "WaitForFirstConsumer" ]; then
+		wait_for_phase Bound pvc/test-volume
+	fi
 }

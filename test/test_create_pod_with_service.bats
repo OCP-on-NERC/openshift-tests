@@ -31,15 +31,3 @@ teardown() {
 		done
 	'
 }
-
-@test "service accessible at route" {
-	hostname=$(
-		${KUBECTL} -n "$TARGET_NAMESPACE" \
-		get route test-pod -o jsonpath='{.spec.host}'
-	)
-	timeout 30 sh -c  '
-		while ! curl -sf -o /dev/null $1; do
-			sleep 1
-		done
-	' -- "$hostname"
-}

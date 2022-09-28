@@ -8,11 +8,16 @@ setup() {
 }
 
 teardown() {
-	${KUBECTL} -n "$TARGET_NAMESPACE" delete -f manifests/obc.yaml
+	if cluster_has_apigroup objectbucket.io; then
+		${KUBECTL} -n "$TARGET_NAMESPACE" delete -f manifests/obc.yaml
+	fi
 }
 
 
 @test "can create obc" {
+	cluster_has_apigroup objectbucket.io ||
+		skip "cluster has no object bucket support"
+
 	${KUBECTL} -n "$TARGET_NAMESPACE" apply -f manifests/obc.yaml
 	wait_for_phase Bound obc/test-bucket
 }
