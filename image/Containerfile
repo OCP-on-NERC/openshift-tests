@@ -1,0 +1,5 @@
+FROM docker.io/alpine:latest
+
+COPY --from=docker.io/traefik/whoami:latest /whoami /usr/bin/whoami
+
+CMD ["whoami"]
