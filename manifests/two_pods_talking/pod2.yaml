@@ -4,14 +4,8 @@ metadata:
   name: test-pod2
 spec:
   containers:
-    - image: docker.io/alpine:latest
+    - image: ghcr.io/ocp-on-nerc/openshift-tests:latest
       name: test-container
-      command:
-        - sh
-        - -c
-        - |
-          apk add --update tini
-          exec tini sleep inf
       startupProbe:
         exec:
           command:

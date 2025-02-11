@@ -6,8 +6,11 @@ metadata:
     component: nginx
 spec:
   containers:
-    - image: docker.io/nginxinc/nginx-unprivileged
+    - image: ghcr.io/ocp-on-nerc/openshift-tests:latest
       name: test-container
+      env:
+        - name: WHOAMI_PORT_NUMBER
+          value: "8080"
       ports:
         - name: http
           containerPort: 8080
