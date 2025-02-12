@@ -5,7 +5,7 @@ setup() {
 }
 
 @test "Check MCP status" {
-    
+
     # Define the pools to check
     pools=("master" "worker")
 
