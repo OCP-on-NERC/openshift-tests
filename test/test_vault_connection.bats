@@ -5,12 +5,12 @@ setup() {
 }
 
 teardown() {
-    ${KUBECTL} -n "$TARGET_NAMESPACE" delete daemonset test-vault-connection --as system:admin
+    ${KUBECTL} -n "$TARGET_NAMESPACE" delete daemonset test-vault-connection
 }
 
 @test "Apply DaemonSet and verify pods Vault connection" {
     # Apply the DaemonSet
-    ${KUBECTL} -n "$TARGET_NAMESPACE" apply -f manifests/check_vault_daemonset.yaml --as system:admin
+    ${KUBECTL} -n "$TARGET_NAMESPACE" apply -f manifests/check_vault_daemonset.yaml
 
     # Wait for the DaemonSet rollout to complete (wait_for_phase does not wokr here as daemonset does not have a status)
     ${KUBECTL} -n "$TARGET_NAMESPACE" rollout status daemonset/test-vault-connection --timeout=10m

@@ -12,6 +12,15 @@ spec:
       labels:
         name: test-vault-connection
     spec:
+      tolerations:
+        - key: "nvidia.com/gpu.product"
+          operator: "Equal"
+          value: "NVIDIA-A100-SXM4-40GB"
+          effect: "NoSchedule"
+        - key: "nvidia.com/gpu.product"
+          operator: "Equal"
+          value: "Tesla-V100-PCIE-32GB"
+          effect: "NoSchedule"
       containers:
       - name: alpine
         image: alpine/curl
