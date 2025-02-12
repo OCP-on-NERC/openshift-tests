@@ -27,7 +27,7 @@ teardown() {
         output=$(${KUBECTL} logs "$pod" -n "$TARGET_NAMESPACE")
         if ! echo "$output" | grep -iq "initialized"; then
             echo "❌ Pod $pod failed to connect to Vault." >&3
-            node=$(${KUBECTL} get pod/$pod --no-headers -o wide)
+            node=$(${KUBECTL} get pod/"$pod" --no-headers -o wide)
             echo "The pod is running on node: $(echo "$node" | awk '{print $7}')" >&3
             failed=1  # Mark as failed
         else
