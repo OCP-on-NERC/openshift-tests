@@ -13,7 +13,7 @@ teardown() {
     ${KUBECTL} -n "$TARGET_NAMESPACE" apply -f manifests/check_vault_daemonset.yaml
 
     # Wait for the DaemonSet rollout to complete (wait_for_phase does not wokr here as daemonset does not have a status)
-    ${KUBECTL} -n "$TARGET_NAMESPACE" rollout status daemonset/test-vault-connection --timeout=10m
+    ${KUBECTL} -n "$TARGET_NAMESPACE" rollout status daemonset/test-vault-connection --timeout=2m
 
     # Get all pod names in the DaemonSet (this is a string)
     podnames=$(${KUBECTL} -n "$TARGET_NAMESPACE" get pods -l name=test-vault-connection -o jsonpath='{.items[*].metadata.name}')

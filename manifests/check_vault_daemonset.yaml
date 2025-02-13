@@ -18,7 +18,7 @@ spec:
           effect: "NoSchedule"
       containers:
       - name: alpine
-        image: alpine/curl
+        image: ghcr.io/ocp-on-nerc/openshift-tests:latest
         command:
           - /bin/sh
           - -c
