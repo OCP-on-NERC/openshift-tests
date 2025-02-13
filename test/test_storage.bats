@@ -69,7 +69,7 @@ EOF
     t_start=$SECONDS
     while true; do
       podcount=$(${KUBECTL} get pod -l app=storage-test -n "$TARGET_NAMESPACE" -o go-template='{{range .items}}{{.status.phase}}{{"\n"}}{{end}}' | grep Running | wc -l)
-      if (( podcount = nodecount )); then
+      if (( podcount == nodecount )); then
         echo "✅ All pods are Running" >&3
         break
       fi
