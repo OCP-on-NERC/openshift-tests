@@ -20,7 +20,7 @@ teardown() {
     # Deploy vectorAdd pods on each GPU node
     for node in $gpu_nodes; do
         pod_name="vectoradd-$node"
-        cat <<EOF | ${KUBECTL} apply -n "$TARGET_NAMESPACE" -f -
+        ${KUBECTL} apply -n "$TARGET_NAMESPACE" -f - <<EOF
 apiVersion: v1
 kind: Pod
 metadata:
@@ -37,12 +37,7 @@ spec:
         nvidia.com/gpu: 1
   tolerations:
     - key: "nvidia.com/gpu.product"
-      operator: "Equal"
-      value: "NVIDIA-A100-SXM4-40GB"
-      effect: "NoSchedule"
-    - key: "nvidia.com/gpu.product"
-      operator: "Equal"
-      value: "Tesla-V100-PCIE-32GB"
+      operator: "Exists"
       effect: "NoSchedule"
   nodeSelector:
     kubernetes.io/hostname: $node
