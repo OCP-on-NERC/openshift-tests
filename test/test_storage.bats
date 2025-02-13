@@ -65,9 +65,10 @@ EOF
     # Wait for all Pods to reach Running state
     failed=0
     timeout=300
-    nodecount=$(${KUBECTL} get nodes -o name | wc -l)
+    nodecount=$(${KUBECTL} get nodes --no-headers -l node-role.kubernetes.io/worker -o name| wc -l)
     t_start=$SECONDS
     while true; do
+      # shellcheck disable=SC2126
       podcount=$(${KUBECTL} get pod -l app=storage-test -n "$TARGET_NAMESPACE" -o go-template='{{range .items}}{{.status.phase}}{{"\n"}}{{end}}' | grep Running | wc -l)
       if (( podcount == nodecount )); then
         echo "✅ All pods are Running" >&3
