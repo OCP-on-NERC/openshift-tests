@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: test-vault-connection
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      name: test-vault-connection
+  template:
+    metadata:
+      labels:
+        name: test-vault-connection
+    spec:
+      tolerations:
+        - key: "nvidia.com/gpu.product"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+      - name: alpine
+        image: ghcr.io/ocp-on-nerc/openshift-tests:latest
+        command:
+          - /bin/sh
+          - -c
+          - |
+            curl https://vault.apps.nerc-ocp-infra.rc.fas.harvard.edu/v1/sys/health
+            sleep 600
