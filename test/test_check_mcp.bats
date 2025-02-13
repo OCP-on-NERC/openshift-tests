@@ -14,7 +14,7 @@ setup() {
 
     for pool in "${pools[@]}"; do
         echo "Checking MCP status for: $pool" >&3
-        upgraded_status=$(${KUBECTL} get mcp "$pool" --no-headers | awk '{print $3}')
+        upgraded_status=$(${KUBECTL} get mcp "$pool" -o jsonpath='{.status.conditions[?(.type=="Updated")].status}')
 
         if [[ "$upgraded_status" == "True" ]]; then
             echo -e "✅ $pool pool is Ready, all nodes are upgraded\n" >&3
