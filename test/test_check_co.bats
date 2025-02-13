@@ -9,18 +9,11 @@ setup() {
     # Get unavailable operators
     unavailable_operators=$(${KUBECTL} get co --no-headers | awk '$3 != "True"')
 
-    # Track failures
-    failed=0
-
+    # Check for unavailable operators
     if [ -n "$unavailable_operators" ]; then
         echo -e "UNAVAILABLE operator/s:\n$unavailable_operators" >&3
-        failed=1
+        fail "Some cluster operators are unavailable."
     else
         echo -e "All cluster operators are Available\n"
-    fi
-
-    # If any pod failed report failure
-    if [ "$failed" -ne 0 ]; then
-        fail "Some cluster operators are unavailable."
     fi
 }
