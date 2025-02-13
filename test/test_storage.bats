@@ -5,8 +5,8 @@ setup() {
 }
 
 teardown() {
-    ${KUBECTL} delete pod -l app=storage-test -n "$TARGET_NAMESPACE" --as system:admin
-    ${KUBECTL} delete pvc -l app=storage-test -n "$TARGET_NAMESPACE" --as system:admin
+    ${KUBECTL} delete pod -l app=storage-test -n "$TARGET_NAMESPACE"
+    ${KUBECTL} delete pvc -l app=storage-test -n "$TARGET_NAMESPACE"
 }
 
 @test "Test Storage with One PVC per Node" {
@@ -15,7 +15,7 @@ teardown() {
 
     # Create PVCs for each node
     for node in $nodes; do
-        cat <<EOF | ${KUBECTL} apply -n "$TARGET_NAMESPACE" --as system:admin -f -
+        ${KUBECTL} apply -n "$TARGET_NAMESPACE" -f - <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -34,7 +34,7 @@ EOF
 
     # Create Pods for each node
     for node in $nodes; do
-        cat <<EOF | ${KUBECTL} apply -n "$TARGET_NAMESPACE" --as system:admin -f -
+        ${KUBECTL} apply -n "$TARGET_NAMESPACE" -f - <<EOF
 apiVersion: v1
 kind: Pod
 metadata:
@@ -44,16 +44,11 @@ metadata:
 spec:
   tolerations:
     - key: "nvidia.com/gpu.product"
-      operator: "Equal"
-      value: "NVIDIA-A100-SXM4-40GB"
-      effect: "NoSchedule"
-    - key: "nvidia.com/gpu.product"
-      operator: "Equal"
-      value: "Tesla-V100-PCIE-32GB"
+      operator: "Exists"
       effect: "NoSchedule"
   containers:
   - name: test-container
-    image: quay.io/libpod/alpine
+    image: ghcr.io/ocp-on-nerc/openshift-tests:latest
     command: [ "sleep", "600" ]
     volumeMounts:
     - mountPath: "/mnt/test"
@@ -69,34 +64,21 @@ EOF
 
     # Wait for all Pods to reach Running state
     failed=0
-    for node in $nodes; do
-        pod_name="storage-test-pod-$node"
-        echo "Checking Pod status: $pod_name"
+    timeout=300
+    nodecount=$(${KUBECTL} get nodes -o name | wc -l)
+    t_start=$SECONDS
+    while true; do
+      podcount=$(${KUBECTL} get pod -l app=storage-test -n "$TARGET_NAMESPACE" -o go-template='{{range .items}}{{.status.phase}}{{"\n"}}{{end}}' | grep Running | wc -l)
+      if (( podcount = nodecount )); then
+        echo "✅ All pods are Running" >&3
+        break
+      fi
 
-        # Wait loop for pod to reach Running
-        timeout=300  # Max wait time: 5 minutes
-        interval=5
-        elapsed=0
-
-        while true; do
-
-            status=$(${KUBECTL} get pod "$pod_name" -n "$TARGET_NAMESPACE" -o jsonpath="{.status.phase}")
-            if [[ "$status" == "Running" ]]; then
-                echo "✅ Pod $pod_name is Running" >&3
-                break
-            fi
-
-            if [[ "$elapsed" -ge "$timeout" ]]; then
-                echo "❌ ERROR: Pod $pod_name did not reach Running state" >&3
-                failed=1
-                break
-            fi
-
-            sleep "$interval"
-            ((elapsed+=interval))
-            echo "waiting for pod..." >&3
-
-        done
+      if (( SECONDS - t_start > timeout )); then
+        echo "❌ ERROR: Timeout waiting for pods to reach Running state" >&3
+        failed=1
+        break
+      fi
     done
 
     # Fail test if any pod did not reach Running state
