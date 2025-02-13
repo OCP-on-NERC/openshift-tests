@@ -22,7 +22,7 @@ setup() {
 }
 
 @test "clusterversion is available" {
-	cluster_has_apigroup config.openshift.ioa ||
+	cluster_has_apigroup config.openshift.io ||
 		skip "cluster does not have clusterversion resource"
 
 	${KUBECTL} -n "$TARGET_NAMESPACE" wait --for=condition=available \

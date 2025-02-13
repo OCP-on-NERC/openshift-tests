@@ -1,0 +1,5 @@
+FROM docker.io/alpine:latest
+
+COPY --from=docker.io/traefik/whoami:latest /whoami /usr/bin/whoami
+ENV WHOAMI_PORT_NUMBER=8080
+CMD ["whoami"]

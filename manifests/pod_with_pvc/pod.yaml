@@ -4,7 +4,7 @@ metadata:
   name: test-pod
 spec:
   containers:
-    - image: docker.io/google/pause:latest
+    - image: ghcr.io/ocp-on-nerc/openshift-tests:latest
       name: test-container
       volumeMounts:
         - name: test-volume

@@ -33,16 +33,16 @@ git submodule update --init
 
     `jq` is a tool for parsing JSON data.
 
-- You must be authenticated to the cluster as a user with `cluster-admin`
-  privileges.
+- You must be able to create resources in `$TARGET_NAMESPACE` (see below). Some of the tests may require cluster-admin privileges; you can disable these tests by setting `SKIP_CLUSTER_ADMIN_TESTS=1`.
 
 ## Configuration
 
 Tests can be configured using the following environment variables.
 
-## General configuration
+### General configuration
 
 - `TARGET_NAMESPACE` -- any commands the create or interact with namespaced resources will use this namespace (`default` by default).
+- `SKIP_CLUSTER_ADMIN_TESTS` -- skip tests that require elevated privileges.
 
 ### External secrets
 
