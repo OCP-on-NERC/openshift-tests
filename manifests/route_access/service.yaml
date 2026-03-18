@@ -5,6 +5,6 @@ metadata:
 spec:
   ports:
   - port: 8080
-    targetPort: http
+    targetPort: 8080
   selector:
     app: route_access

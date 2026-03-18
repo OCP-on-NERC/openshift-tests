@@ -7,7 +7,7 @@ spec:
     kind: Service
     name: test-route-service
   port:
-    targetPort: http
+    targetPort: 8080
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
