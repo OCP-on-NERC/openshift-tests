@@ -30,8 +30,6 @@ teardown() {
 
 	# Try to resolve the service by short name from within the pod
 	${KUBECTL} -n "$TARGET_NAMESPACE" exec dns-test-pod -- \
-		nslookup dns-test-service || \
-		${KUBECTL} -n "$TARGET_NAMESPACE" exec dns-test-pod -- \
 		getent hosts dns-test-service
 
 	echo "✅ Service resolved by short name" >&3
@@ -48,8 +46,6 @@ teardown() {
 	fqdn="dns-test-service.${TARGET_NAMESPACE}.svc.cluster.local"
 
 	${KUBECTL} -n "$TARGET_NAMESPACE" exec dns-test-pod -- \
-		nslookup "$fqdn" || \
-		${KUBECTL} -n "$TARGET_NAMESPACE" exec dns-test-pod -- \
 		getent hosts "$fqdn"
 
 	echo "✅ Service resolved by FQDN" >&3
@@ -61,8 +57,6 @@ teardown() {
 
 	# The kubernetes service should always exist in the default namespace
 	${KUBECTL} -n "$TARGET_NAMESPACE" exec dns-test-pod -- \
-		nslookup kubernetes.default.svc.cluster.local || \
-		${KUBECTL} -n "$TARGET_NAMESPACE" exec dns-test-pod -- \
 		getent hosts kubernetes.default.svc.cluster.local
 
 	echo "✅ Kubernetes service resolved" >&3
@@ -74,8 +68,6 @@ teardown() {
 
 	# Test that external DNS resolution works
 	${KUBECTL} -n "$TARGET_NAMESPACE" exec dns-test-pod -- \
-		nslookup google.com || \
-		${KUBECTL} -n "$TARGET_NAMESPACE" exec dns-test-pod -- \
 		getent hosts google.com
 
 	echo "✅ External DNS resolved" >&3
