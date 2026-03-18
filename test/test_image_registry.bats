@@ -8,6 +8,11 @@ setup() {
 	load 'lib/common.bash'
 }
 
+teardown() {
+	${KUBECTL} -n "$TARGET_NAMESPACE" delete -k manifests/image_registry --ignore-not-found
+}
+
+
 @test "image registry operator is available" {
 	cluster_has_apigroup config.openshift.io ||
 		skip "cluster does not have OpenShift image registry (not OpenShift)"
@@ -92,4 +97,45 @@ setup() {
 	fi
 
 	echo "✅ Image registry storage is configured" >&3
+}
+
+@test "can pull image from internal registry" {
+	cluster_has_apigroup image.openshift.io ||
+		skip "cluster does not have OpenShift image registry (not OpenShift)"
+
+	# Create the imagestream
+	${KUBECTL} -n "$TARGET_NAMESPACE" apply -f manifests/image_registry/imagestream.yaml
+
+	# Wait for the imagestream to import
+	timeout 120 sh -c '
+		while ! ${KUBECTL} -n "$TARGET_NAMESPACE" get imagestream test-registry-pull \
+				-o jsonpath="{.status.tags[0].items[0].dockerImageReference}" 2>/dev/null | grep -q .; do
+			sleep 2
+		done
+	'
+
+	# Get the internal registry reference for logging
+	internal_image=$(${KUBECTL} -n "$TARGET_NAMESPACE" get imagestream test-registry-pull \
+		-o jsonpath='{.status.dockerImageRepository}:latest')
+	echo "Internal registry image: $internal_image" >&3
+
+	# Create a pod that pulls from the internal registry
+	INTERNAL_IMAGE="$internal_image" envsubst < manifests/image_registry/pod.yaml | ${KUBECTL} -n "$TARGET_NAMESPACE" apply -f -
+
+	# Wait for pod to start (which means image pull succeeded)
+	timeout 120 sh -c '
+		while true; do
+			phase=$(${KUBECTL} -n "$TARGET_NAMESPACE" get pod test-registry-pull-pod \
+				-o jsonpath="{.status.phase}" 2>/dev/null)
+			if [ "$phase" = "Running" ] || [ "$phase" = "Succeeded" ]; then
+				break
+			fi
+			if [ "$phase" = "Failed" ]; then
+				exit 1
+			fi
+			sleep 2
+		done
+	'
+
+	echo "✅ Successfully pulled image from internal registry" >&3
 }
