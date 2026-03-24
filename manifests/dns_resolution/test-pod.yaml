@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dns-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: ghcr.io/ocp-on-nerc/openshift-tests:latest
+      command: ["sleep", "300"]
