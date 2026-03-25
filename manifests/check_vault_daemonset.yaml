@@ -23,5 +23,5 @@ spec:
           - /bin/sh
           - -c
           - |
-            curl https://vault.apps.nerc-ocp-infra.rc.fas.harvard.edu/v1/sys/health
+            curl https://vault.apps.infra.nerc.mghpcc.org/v1/sys/health
             sleep 600
