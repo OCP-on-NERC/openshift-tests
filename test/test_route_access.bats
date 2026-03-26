@@ -72,7 +72,7 @@ teardown() {
 		status=$(curl -k -s -o /dev/null -w "%{http_code}" "https://$route_host" 2>&1)
 		last_status="$status"
 
-		if [ "$status" != "000" ]; then
+		if [ "$status" = "200" ]; then
 			success=1
 			break
 		fi
@@ -82,10 +82,10 @@ teardown() {
 	done
 
 	if [ $success -eq 0 ]; then
-		echo "❌ Route not accessible (no response)" >&3
-		echo "Note: HTTP 000 indicates connection failure" >&3
+		echo "❌ Route not accessible (received $last_status response)" >&3
+    echo "Note: HTTP 000 indicates connection failure" >&3
 		fail "Route is not externally accessible"
 	fi
 
-	echo "✅ Route is externally accessible via HTTPS (HTTP $last_status)" >&3
+	echo "✅ Route is externally accessible via HTTPS" >&3
 }
